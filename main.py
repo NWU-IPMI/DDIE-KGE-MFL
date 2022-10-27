@@ -253,8 +253,6 @@ def train(args, train_dataset, model, tokenizer):
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     util.set_seed(args)  # Added here for reproductibility (even between python 2 and 3)
 
-    best_f1 = 0.0
-
     for epoch, _ in enumerate(train_iterator, start=1):
         epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
         for step, batch in enumerate(epoch_iterator):
@@ -292,7 +290,6 @@ def train(args, train_dataset, model, tokenizer):
                 model.zero_grad()
                 global_step += 1
                 if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
-
                     # Log metrics
                     if args.local_rank == -1 and args.evaluate_during_training:  # Only evaluate when single GPU otherwise metrics may not average well
                         results = evaluate(args, model, tokenizer, prefix="")
@@ -332,9 +329,6 @@ def train(args, train_dataset, model, tokenizer):
                 storage_model.restore_params()
             else:
                 results = evaluate(args, model, tokenizer, prefix=prefix)
-
-    with open("./result.txt","a+") as fw:
-        fw.write("best_f1:%s"%(best_f1))
 
     if args.local_rank in [-1, 0]:
         tb_writer.close()
