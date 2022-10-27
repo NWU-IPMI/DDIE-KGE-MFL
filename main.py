@@ -293,22 +293,6 @@ def train(args, train_dataset, model, tokenizer):
                 global_step += 1
                 if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
 
-                    #add
-                    results = evaluate(args, model, tokenizer, prefix="")
-                    if results['microF']>best_f1:
-                        logger.info("F1_score up! from %.4f to %.4f" % (best_f1, results['microF']))
-                        output_dir = os.path.join(args.output_dir, 'best_model')
-                        if not os.path.exists(output_dir):
-                            os.makedirs(output_dir)
-                        model_to_save = model.module if hasattr(model,
-                                                                'module') else model  # Take care of distributed/parallel training
-                        model_to_save.save_pretrained(output_dir)
-                        torch.save(args, os.path.join(output_dir, 'training_args.bin'))
-                        logger.info("Saving model checkpoint to %s", output_dir)
-                        best_f1 = results['microF']
-                    #add end
-
-
                     # Log metrics
                     if args.local_rank == -1 and args.evaluate_during_training:  # Only evaluate when single GPU otherwise metrics may not average well
                         results = evaluate(args, model, tokenizer, prefix="")
